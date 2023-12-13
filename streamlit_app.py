@@ -174,37 +174,19 @@ with wide_layout:
     with small_layout:
         """
         Something that is very easy to see is that the happiest regions are from Europe and North America. No big
-        surprise there. These regions perfectly match "The West". The most interesting region is by far West Asia. The 
-        happiness scores in this region varies from the second lowest to one of the highest.
+        surprise there. These regions perfectly match what people call "The West". The most interesting region is by far
+        West Asia. The happiness scores in this region varies from the second lowest to one of the highest. And regions
+        with the lowest happiness score are Sub-Saharan Africa and South Asia. Sub-Saharan Africa have been plagued by
+        political instability and poverty for decades. South Asia is home to some of the poorest countries in the world.
         
                 
-        ### 
-        You don't have to be an economist to see that the happiest countries are all developed countries. But do 
+        ### Who is the happiest and who is the unhappiest?
         """
-
-
-        # Calculate the average Happiness Score and Logged GDP by continent
-        avg_data = full_data.groupby('Continent')[['Normalized Happiness Score','Normalized Logged GDP per capita',
-                                                   'Normalized Social support','Normalized Healthy life expectancy',
-                                                   'Normalized Freedom to make life choices']].mean().reset_index()
-        # Create a grouped bar chart for normalized data
-        fig = px.bar(
-            avg_data.melt(id_vars='Continent', var_name='Metric', value_name='Percentage'),
-            y='Continent',
-            x='Percentage',
-            color='Metric',
-            barmode='group',
-            title='Normalized Metrics by Continent',
-            orientation='h',
-            height=800
-        ) # todo:  sort by happiness score, labels
-        # Show the combined bar chart
-        st.plotly_chart(fig, use_container_width=True)
 
     _, col1, col2, _ = st.columns(4)
     with col1:
         """
-        ### Happiest Countries
+        #### Happiest Countries
         """
         happiest_countries = full_data[['Country name', 'Happiness Score']]
         happiest_countries = happiest_countries.sort_values(by='Happiness Score', ascending=False).head(5)
@@ -218,13 +200,13 @@ with wide_layout:
     # Add content to the second column
     with col2:
         """
-        ### Unhappiest Countries
+        #### Unhappiest Countries
         """
         unhappiest_countries = full_data[['Country name', 'Happiness Score']]
         unhappiest_countries = unhappiest_countries.sort_values(by='Happiness Score', ascending=True).head(5)
 
         formatted_unhappiest_countries = ""
-        rank = 128
+        rank = len(full_data)
         for index, row in unhappiest_countries.iterrows():
             formatted_unhappiest_countries += f"{rank}. {row['Country name']} ({row['Happiness Score']}) \n"
             rank -= 1
@@ -240,20 +222,21 @@ with wide_layout:
         and the Netherlands in the top five. All of these countries are part of the developed world. Conversely, at the 
         other end of the spectrum, Afghanistan occupies the lowest position, ranking as the unhappiest country with a 
         significantly lower score of 1.859. Lebanon, Sierra Leone, Zimbabwe, and Botswana also find themselves among 
-        the unhappiest nations, with scores ranging from 2.392 to 3.435.
+        the unhappiest nations, with scores ranging from 2.392 to 3.435. A very interesting observation is that Israel
+        and Lebanon are neighbors, but have a very different happiness score. 
       
         
         
-        ### Diverse Metrics and their Influence on Happiness
+        ### What Factors Influence Happiness the most?
         
         Now that we have a better understanding of the geographic distribution of happiness scores, let's take a look
         at some of the metrics that may have an influence on the happiness score. Some metrics are social, some are
-        economic, and some are a mix of both. This plot is interactive, you can select the continent and zoom in on
-        a specific part of the plot.
+        economic, and some are a mix of both. The number in the brackets is the correlation between the metric and the
+        happiness score.
         """
 
     # Define the details for subplots
-    plots_details = ['Logged GDP per capita',
+    all_metrics = ['Logged GDP per capita',
                      'Social support',
                      'Healthy life expectancy',
                      'Freedom to make life choices',
@@ -264,13 +247,13 @@ with wide_layout:
                      'Population']
 
     num_cols = 3
-    num_rows = ceil(len(plots_details) / num_cols)
+    num_rows = ceil(len(all_metrics) / num_cols)
 
     # Create a subplot figure with titles
-    fig = sp.make_subplots(rows=num_rows, cols=num_cols, subplot_titles=plots_details)
+    fig = sp.make_subplots(rows=num_rows, cols=num_cols, subplot_titles=all_metrics)
 
     # Add each scatter plot to the respective column in the subplot
-    for i, x_var in enumerate(plots_details):
+    for i, x_var in enumerate(all_metrics):
         correlation = round(np.corrcoef(full_data['Happiness Score'], full_data[x_var])[0, 1], 2)
 
         scatter_plot = px.scatter(full_data, x=x_var, y='Happiness Score', color='Continent',
@@ -300,14 +283,71 @@ with wide_layout:
 
     with small_layout:
         """
-        Some metrics are more correlated with the happiness score than others. Logged GDP per capita, social support, 
-        Healthy life expectancy, Freedom to make life choices and Urban population percentage are all positively 
-        correlated with the happiness score. Generosity, Unemployment rate, and Population 
-        all have a weak correlation at best. With only Perceptions of corruption having a negative correlation.
+        Some metrics are more correlated with the happiness score than others. Lets now plot the most correlated
+        metrics on a map. 
+        
+        # Visual Correlation TODO
         """
 
-        """
-        ## Dataset
-        """
+        with st.expander("Change Parameters"):
+            default_metrics = ['Logged GDP per capita',
+                               'Social support',
+                               'Healthy life expectancy',
+                               'Freedom to make life choices',
+                               'Perceptions of corruption',
+                               'Urban population percentage']
+
+            metrics_to_reverse = ['Perceptions of corruption', 'Unemployment rate']
+
+            selected_metrics = st.multiselect('Selected metrics', all_metrics, default_metrics)
+
+    num_rows = 2
+    small_container = st.container()
+    rows = small_container.columns(num_rows)
+
+    half = len(selected_metrics) // num_rows
+
+    with rows[0]:
+        split_metrics = selected_metrics[half:]
+
+        for split_metric in split_metrics:
+            color_scale = 'viridis' if split_metric not in metrics_to_reverse else 'viridis_r'
+            metric_map = px.choropleth(full_data,
+                      locations="Country name",
+                      locationmode='country names',
+                      color=split_metric,
+                      title=split_metric,
+                      hover_name="Country name",
+                      hover_data=['Happiness Score', split_metric],
+                      color_continuous_scale=color_scale,
+                      height=600)
+
+            metric_map.update_geos(showocean=True, oceancolor="#0e1117")
+            metric_map.update_layout(dragmode=False)
+            metric_map.update_traces(marker_line_width=0)
+
+            st.plotly_chart(metric_map, use_container_width=True)
+
+        with rows[1]:
+            split_metrics = selected_metrics[:half]
+
+            for split_metric in split_metrics:
+                color_scale = 'viridis' if split_metric not in metrics_to_reverse else 'viridis_r'
+                metric_map = px.choropleth(full_data,
+                                           locations="Country name",
+                                           locationmode='country names',
+                                           color=split_metric,
+                                           title=split_metric,
+                                           hover_name="Country name",
+                                           hover_data=['Happiness Score', split_metric],
+                                           color_continuous_scale=color_scale,
+                                           height=600)
+
+                metric_map.update_geos(showocean=True, oceancolor="#0e1117")
+                metric_map.update_layout(dragmode=False)
+                metric_map.update_traces(marker_line_width=0)
+
+                st.plotly_chart(metric_map, use_container_width=True)
+
 
     st.dataframe(full_data)
