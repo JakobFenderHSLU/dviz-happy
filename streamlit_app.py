@@ -1,7 +1,10 @@
+from datetime import datetime
 from math import floor, ceil
 
 import numpy as np
+import pandas as pd
 import plotly.express as px
+import plotly.graph_objects as go
 import plotly.subplots as sp
 import streamlit as st
 
@@ -21,6 +24,8 @@ st.markdown(custom_css, unsafe_allow_html=True)
 
 WIDE_CONTAINER_COLUMNS = [1, 5, 1]
 SMALL_CONTAINER_COLUMNS = [1, 3, 1]
+BIG_SPACER_HTML = '<br><br><br>'
+SMALL_SPACER_HTML = '<br>'
 
 # Create a container
 container = st.container()
@@ -35,9 +40,11 @@ with wide_layout:
 
     with small_layout:
         """
-        # WORK IN PROGRESS! The website is not finished yet!
         # How the economy influences our happiness
         #### Money can't buy happiness, but it makes living a lot easier. 
+        """
+        st.markdown(SMALL_SPACER_HTML, unsafe_allow_html=True)
+        """
         ## Disclaimer
         This data story is a project developed as part of the Data Visualization course at Luzern University of Applied 
         Sciences and Arts. In the spirit of transparency we would like to disclose that some portions of the text have 
@@ -54,7 +61,9 @@ with wide_layout:
         
         Names of countries, and their borders are not intended to be a political statement. We are aware that some 
         countries have disputed borders. We are using the data as it is provided by the datasets!
-        
+        """
+        st.markdown(SMALL_SPACER_HTML, unsafe_allow_html=True)
+        """
         ## Introduction
         
         In our quest to understand what influences happiness around the world, we embark on a data-driven story 
@@ -62,7 +71,7 @@ with wide_layout:
         scores against a myriad of metrics that will give us a better understanding of what makes us happy. We will also
         explore the geographic distribution of happiness scores and how they vary across continents. 
         """
-
+        st.markdown(SMALL_SPACER_HTML, unsafe_allow_html=True)
         """
         ### Happiness, on a Map?
         The World Happiness Report is a landmark survey of the state of global happiness. The survey is conducted by the
@@ -108,10 +117,13 @@ with wide_layout:
         """
         Something that you can see in the map is that the countries with the highest happiness score are in 
         Europe, North America and Oceania. The countries with the lowest happiness score are in Africa, the Middle
-        East and South Asia. 
-        
-        ### Does your continent influence your happiness?
+        East and South Asia.
         """
+        st.markdown(SMALL_SPACER_HTML, unsafe_allow_html=True)
+        """
+        ### Where are the happiest people?
+        """
+
         continent_order = {"Continent": full_data.groupby("Continent")["Happiness Score"].median()
         .sort_values(ascending=False).index.tolist()}
 
@@ -129,8 +141,10 @@ with wide_layout:
         upper fence and the highest median score. The Americas are not that far off. With their upper and lower fences 
         being very close to each other. Asia has the largest spread of happiness scores. Africa is the unhappiest
         continent by far. Their median score is lower than the lower fence of Europe.
-        
-        ### Let's take an even closer look  
+        """
+        st.markdown(SMALL_SPACER_HTML, unsafe_allow_html=True)
+        """        
+        ### Where _exactly_ are the happiest people?
         The following boxplot shows the happiness scores of the regions of a continent. The boxplots have been sorted
         by their median score and colored by their continent. 
         
@@ -178,45 +192,24 @@ with wide_layout:
         West Asia. The happiness scores in this region varies from the second lowest to one of the highest. And regions
         with the lowest happiness score are Sub-Saharan Africa and South Asia. Sub-Saharan Africa have been plagued by
         political instability and poverty for decades. South Asia is home to some of the poorest countries in the world.
-        
-                
-        ### Who is the happiest and who is the unhappiest?
+        """
+        st.markdown(SMALL_SPACER_HTML, unsafe_allow_html=True)
+        """
+        ### The Extremes
         """
 
-    _, col1, col2, _ = st.columns(4)
-    with col1:
-        """
-        #### Happiest Countries
-        """
-        happiest_countries = full_data[['Country name', 'Happiness Score']]
-        happiest_countries = happiest_countries.sort_values(by='Happiness Score', ascending=False).head(5)
+        # Creating top 10 and bottom 10 data frames and concatinating them
+        top10 = full_data.set_index('Country name')['Happiness Score'].nlargest(5).to_frame()
+        bottom10 = full_data.set_index('Country name')['Happiness Score'].nsmallest(5).to_frame()
+        df_concat = pd.concat([top10, bottom10], axis=0)
+        df_concat = df_concat.sort_values(by="Happiness Score")
 
-        formatted_happiest_countries = ""
-        for index, row in happiest_countries.iterrows():
-            formatted_happiest_countries += f"{index + 1}. {row['Country name']} ({row['Happiness Score']}) \n"
+        # bar chart horizontal
+        fig = px.bar(df_concat, x="Happiness Score", y=df_concat.index, orientation='h', height=600, color='Happiness Score', color_continuous_scale='viridis')
+        fig.update_layout(xaxis_title='Happiness Score', yaxis_title='Country name')
+        fig.update_layout(autosize=True)
+        st.plotly_chart(fig, use_container_width=True)
 
-        st.text(formatted_happiest_countries)
-
-    # Add content to the second column
-    with col2:
-        """
-        #### Unhappiest Countries
-        """
-        unhappiest_countries = full_data[['Country name', 'Happiness Score']]
-        unhappiest_countries = unhappiest_countries.sort_values(by='Happiness Score', ascending=True).head(5)
-
-        formatted_unhappiest_countries = ""
-        rank = len(full_data)
-        for index, row in unhappiest_countries.iterrows():
-            formatted_unhappiest_countries += f"{rank}. {row['Country name']} ({row['Happiness Score']}) \n"
-            rank -= 1
-
-        st.text(formatted_unhappiest_countries)
-
-    small_container = st.container()
-    _, small_layout, _ = small_container.columns(SMALL_CONTAINER_COLUMNS)
-
-    with small_layout:
         """
         Finland is leading as the happiest country with a score of 7.804, followed closely by Denmark, Iceland, Israel, 
         and the Netherlands in the top five. All of these countries are part of the developed world. Conversely, at the 
@@ -224,9 +217,10 @@ with wide_layout:
         significantly lower score of 1.859. Lebanon, Sierra Leone, Zimbabwe, and Botswana also find themselves among 
         the unhappiest nations, with scores ranging from 2.392 to 3.435. A very interesting observation is that Israel
         and Lebanon are neighbors, but have a very different happiness score. 
-      
         
-        
+        """
+        st.markdown(SMALL_SPACER_HTML, unsafe_allow_html=True)
+        """
         ### What Factors Influence Happiness the most?
         
         Now that we have a better understanding of the geographic distribution of happiness scores, let's take a look
@@ -235,29 +229,54 @@ with wide_layout:
         happiness score.
         """
 
-    # Define the details for subplots
-    all_metrics = ['Logged GDP per capita',
-                     'Social support',
-                     'Healthy life expectancy',
-                     'Freedom to make life choices',
-                     'Generosity',
-                     'Perceptions of corruption',
-                     'Urban population percentage',
-                     'Unemployment rate',
-                     'Population']
+        # Define the details for subplots
+        all_metrics = ['Social support',
+                       'Logged GDP per capita',
+                       'Healthy life expectancy',
+                       'Freedom to make life choices',
+                       'Generosity',
+                       'Urban population percentage',
+                       'Perceptions of corruption',
+                       'Unemployment rate',
+                       'Population']
+
+        with st.expander("Change Parameters"):
+            default_metrics = ['Social support',
+                               'Logged GDP per capita',
+                               'Healthy life expectancy',
+                               'Freedom to make life choices',
+                               'Urban population percentage',
+                               'Perceptions of corruption']
+            selected_metrics = st.multiselect('correlation_scatter', all_metrics, default_metrics)
 
     num_cols = 3
-    num_rows = ceil(len(all_metrics) / num_cols)
+    num_rows = ceil(len(selected_metrics) / num_cols)
 
     # Create a subplot figure with titles
-    fig = sp.make_subplots(rows=num_rows, cols=num_cols, subplot_titles=all_metrics)
+    fig = sp.make_subplots(rows=num_rows, cols=num_cols, subplot_titles=selected_metrics)
 
     # Add each scatter plot to the respective column in the subplot
-    for i, x_var in enumerate(all_metrics):
+    for i, x_var in enumerate(selected_metrics):
         correlation = round(np.corrcoef(full_data['Happiness Score'], full_data[x_var])[0, 1], 2)
 
         scatter_plot = px.scatter(full_data, x=x_var, y='Happiness Score', color='Continent',
                                   hover_name='Country name', hover_data=['Happiness Score', x_var])
+
+        # Calculate the regression line
+        coefficients = np.polyfit(full_data[x_var], full_data['Happiness Score'], 1)
+        m = coefficients[0]
+        b = coefficients[1]
+        y_fit = m * full_data[x_var] + b
+
+        regression_line = go.Scatter(
+            x=full_data[x_var],
+            y=y_fit,
+            mode='lines',
+            line=dict(color='white', width=2),
+            name='Trendlinie'
+        )
+        regression_line.showlegend = False
+        scatter_plot.add_trace(regression_line)
 
         current_row = floor(i / num_cols) + 1
         current_col = i % num_cols + 1
@@ -282,72 +301,52 @@ with wide_layout:
     _, small_layout, _ = small_container.columns(SMALL_CONTAINER_COLUMNS)
 
     with small_layout:
+        st.markdown(SMALL_SPACER_HTML, unsafe_allow_html=True)
         """
-        Some metrics are more correlated with the happiness score than others. Lets now plot the most correlated
-        metrics on a map. 
-        
-        # Visual Correlation TODO
+        Here you can see, that the strongest correlation is between the happiness score and Social Support, which makes
+        sense. People are more happy, if a good social support network that allows them to live a fulfilling
+        life, even if they get injured or go into retirement. The second strongest correlation is between the happiness
+        and the GDP per capita. This is also not surprising. People are more happy, if they have more money. Another 
+        correlation that feels very intuitive is the correlation between the happiness score and the healthy life
+        expectancy. People are more happy, if they are healthy. The correlation between the happiness score and the
+        freedom to make life choices is also very intuitive, although it is not as strong as expected. 
+        Urban population percentage, and perceptions of corruption are also correlated with the happiness score, but
+        not as strong as the other metrics.
         """
+        st.markdown(BIG_SPACER_HTML, unsafe_allow_html=True)
+        """
+        ## Conclusion
+        Through the course of this data story, we have explored the geographic distribution of happiness scores, and
+        how they vary across continents and regions. We have also explored the correlation between happiness scores and
+        various metrics that may influence happiness. We have found that the happiness score is strongly correlated
+        with social support, GDP per capita, and healthy life expectancy. We have also found that the happiest countries
+        are in Europe and North America, while the unhappiest countries are in Africa and South Asia.
+        """
+    st.markdown(BIG_SPACER_HTML, unsafe_allow_html=True)
 
-        with st.expander("Change Parameters"):
-            default_metrics = ['Logged GDP per capita',
-                               'Social support',
-                               'Healthy life expectancy',
-                               'Freedom to make life choices',
-                               'Perceptions of corruption',
-                               'Urban population percentage']
+    """
+    # Feedback
+    If you have any feedback, please leave it here.
+    """
+    with st.form(key='feedback_form'):
 
-            metrics_to_reverse = ['Perceptions of corruption', 'Unemployment rate']
+        # Text area for feedback message
+        message = st.text_area(label="Your Feedback")
 
-            selected_metrics = st.multiselect('Selected metrics', all_metrics, default_metrics)
+        # Submit button
+        submit_button = st.form_submit_button(label='Submit')
 
-    num_rows = 2
-    small_container = st.container()
-    rows = small_container.columns(num_rows)
+        if submit_button:
+            filename = 'feedback/' + datetime.now().strftime("%Y%m%d_%H%M%S") + ".txt"
+            with open(filename, "w") as file:
+                file.write(message)
+            st.success("Thank you for your feedback!")
+            st.balloons()
 
-    half = len(selected_metrics) // num_rows
+    st.markdown(BIG_SPACER_HTML, unsafe_allow_html=True)
 
-    with rows[0]:
-        split_metrics = selected_metrics[half:]
-
-        for split_metric in split_metrics:
-            color_scale = 'viridis' if split_metric not in metrics_to_reverse else 'viridis_r'
-            metric_map = px.choropleth(full_data,
-                      locations="Country name",
-                      locationmode='country names',
-                      color=split_metric,
-                      title=split_metric,
-                      hover_name="Country name",
-                      hover_data=['Happiness Score', split_metric],
-                      color_continuous_scale=color_scale,
-                      height=600)
-
-            metric_map.update_geos(showocean=True, oceancolor="#0e1117")
-            metric_map.update_layout(dragmode=False)
-            metric_map.update_traces(marker_line_width=0)
-
-            st.plotly_chart(metric_map, use_container_width=True)
-
-        with rows[1]:
-            split_metrics = selected_metrics[:half]
-
-            for split_metric in split_metrics:
-                color_scale = 'viridis' if split_metric not in metrics_to_reverse else 'viridis_r'
-                metric_map = px.choropleth(full_data,
-                                           locations="Country name",
-                                           locationmode='country names',
-                                           color=split_metric,
-                                           title=split_metric,
-                                           hover_name="Country name",
-                                           hover_data=['Happiness Score', split_metric],
-                                           color_continuous_scale=color_scale,
-                                           height=600)
-
-                metric_map.update_geos(showocean=True, oceancolor="#0e1117")
-                metric_map.update_layout(dragmode=False)
-                metric_map.update_traces(marker_line_width=0)
-
-                st.plotly_chart(metric_map, use_container_width=True)
-
-
-    st.dataframe(full_data)
+    """
+    # Appendix - Data
+    """
+    with st.expander("Cleaned dataset used in this data story"):
+        st.dataframe(full_data)
