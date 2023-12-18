@@ -1,5 +1,3 @@
-import logging
-from datetime import datetime
 from math import floor, ceil
 
 import numpy as np
@@ -22,7 +20,6 @@ custom_css = """
 
 # Inject custom CSS with markdown
 st.markdown(custom_css, unsafe_allow_html=True)
-logging.basicConfig(filename='feedback.log', level=logging.DEBUG)
 
 WIDE_CONTAINER_COLUMNS = [1, 5, 1]
 SMALL_CONTAINER_COLUMNS = [1, 3, 1]
@@ -320,24 +317,6 @@ with wide_layout:
         with social support, GDP per capita, and healthy life expectancy. We have also found that the happiest countries
         are in Europe and North America, while the unhappiest countries are in Africa and South Asia.
         """
-    st.markdown(BIG_SPACER_HTML, unsafe_allow_html=True)
-
-    """
-    ## Feedback
-    """
-
-    with st.form(key='feedback_form'):
-        # Text area for feedback message
-        message = st.text_area(label="Your Feedback")
-
-        # Submit button
-        submit_button = st.form_submit_button(label='Submit')
-
-        if submit_button:
-            logging.debug(message)
-            st.success('Thank you for your feedback!')
-            st.balloons()
-
     st.markdown(BIG_SPACER_HTML, unsafe_allow_html=True)
 
     """
