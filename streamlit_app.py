@@ -51,13 +51,9 @@ with wide_layout:
         been generated with the assistance of ChatGPT. Every text that has been generated with the assistance of
         ChatGPT have been either edited or completely rewritten by the authors of this data story.
             
-        The content of this data story is derived from a notebook authored by Lucy Allan. You can find her notebook and 
-        access the datasets she utilized at the following links:
-        
-        - [Lucy Allan's Notebook](https://www.kaggle.com/code/lucyallan/world-happiness-report-2023-data/notebook)
-        - [World Happiness Report 2023](https://www.kaggle.com/datasets/ajaypalsinghlo/world-happiness-report-2023/)
-        - [Global Country Information 2023](https://www.kaggle.com/datasets/nelgiriyewithana/countries-of-the-world-2023)
-        - [Continent2](https://www.kaggle.com/datasets/semihizinli/continent2)
+        The content of this data story is derived from a notebook authored by Lucy Allan. You can find her notebook 
+        [here](https://www.kaggle.com/code/lucyallan/world-happiness-report-2023-data/notebook)
+
         
         Names of countries, and their borders are not intended to be a political statement. We are aware that some 
         countries have disputed borders. We are using the data as it is provided by the datasets!
@@ -323,30 +319,12 @@ with wide_layout:
         are in Europe and North America, while the unhappiest countries are in Africa and South Asia.
         """
     st.markdown(BIG_SPACER_HTML, unsafe_allow_html=True)
-
     """
-    # Feedback
-    If you have any feedback, please leave it here.
-    """
-    with st.form(key='feedback_form'):
-
-        # Text area for feedback message
-        message = st.text_area(label="Your Feedback")
-
-        # Submit button
-        submit_button = st.form_submit_button(label='Submit')
-
-        if submit_button:
-            filename = 'feedback/' + datetime.now().strftime("%Y%m%d_%H%M%S") + ".txt"
-            with open(filename, "w") as file:
-                file.write(message)
-            st.success("Thank you for your feedback!")
-            st.balloons()
-
-    st.markdown(BIG_SPACER_HTML, unsafe_allow_html=True)
-
-    """
-    # Appendix - Data
+    ## Appendix - Data
+    All data used in this data story is available on Kaggle. You can find the links to the datasets below.
+    - [World Happiness Report 2023](https://www.kaggle.com/datasets/ajaypalsinghlo/world-happiness-report-2023/)
+    - [Global Country Information 2023](https://www.kaggle.com/datasets/nelgiriyewithana/countries-of-the-world-2023)
+    - [Continent2](https://www.kaggle.com/datasets/semihizinli/continent2)
     """
     with st.expander("Cleaned dataset used in this data story"):
         st.dataframe(full_data)
