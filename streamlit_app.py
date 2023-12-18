@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime
 from math import floor, ceil
 
@@ -21,6 +22,7 @@ custom_css = """
 
 # Inject custom CSS with markdown
 st.markdown(custom_css, unsafe_allow_html=True)
+logging.basicConfig(filename='feedback.log', level=logging.DEBUG)
 
 WIDE_CONTAINER_COLUMNS = [1, 5, 1]
 SMALL_CONTAINER_COLUMNS = [1, 3, 1]
@@ -332,7 +334,7 @@ with wide_layout:
         submit_button = st.form_submit_button(label='Submit')
 
         if submit_button:
-            print(message)
+            logging.debug(message)
             st.success('Thank you for your feedback!')
             st.balloons()
 
