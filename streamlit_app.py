@@ -1,4 +1,4 @@
-from math import floor, ceil
+from math import ceil, floor
 
 import numpy as np
 import pandas as pd
@@ -7,7 +7,10 @@ import plotly.graph_objects as go
 import plotly.subplots as sp
 import streamlit as st
 
-from helper import full_data, continent_color_map, region_color_map
+from helper import continent_color_map, full_data, region_color_map
+
+import plotly.io as pio
+pio.templates.default = 'simple_white'
 
 st.set_page_config(layout='wide', page_title='Happiness & Economics', page_icon=':smiley:')
 custom_css = """
@@ -99,11 +102,11 @@ with wide_layout:
                                   color_continuous_scale='viridis',
                                   height=800)
 
-    happiness_map.update_geos(showocean=True, oceancolor="#0e1117")
+    happiness_map.update_geos(showocean=True, oceancolor="#fffec6")
     happiness_map.update_layout(dragmode=False)
     happiness_map.update_traces(marker_line_width=0)
 
-    st.plotly_chart(happiness_map, use_container_width=True)
+    st.plotly_chart(happiness_map, use_container_width=True, theme=None)
 
     small_container = st.container()
     _, small_layout, _ = small_container.columns(SMALL_CONTAINER_COLUMNS)
@@ -128,7 +131,7 @@ with wide_layout:
 
         fig.update_layout(xaxis_title='Happiness Score', yaxis_title='Continent')
         fig.update_layout(autosize=True)
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, use_container_width=True, theme=None)
 
         """
         Oceanica is by far the happiest continent. But this is not a fair comparison, because Oceanica only has 2
@@ -173,9 +176,44 @@ with wide_layout:
                  orientation='h', color_discrete_map=region_color_map,
                  category_orders=region_order, hover_data=['Country name'])
 
-    fig.update_layout(yaxis_title='Sub Region', xaxis_title='Happiness Score')
-    fig.update_layout(autosize=True)
-    st.plotly_chart(fig, use_container_width=True)
+    fig.update_layout(yaxis_title='Sub Region', xaxis_title='Happiness Score', autosize=True)
+
+    text = """<span style='font-size:28px; color:#0e1117'>The West</span>"""
+    fig.add_annotation(
+        x=5.5, y=12.7,  # Text annotation position
+        xref="x", yref="y",  # Coordinate reference system
+        text=text,  # Text content
+        showarrow=False,
+    )
+
+    fig.add_shape(
+        type="rect",
+        x0=4.9, y0=13.5, x1=8, y1=7.5,  # Define the coordinates of the rectangle's corners
+        line=dict(
+            color="#0e1117",
+            width=5,
+        ),
+        opacity=1,
+        fillcolor="rgba(0, 0, 0, 0)",
+    )
+
+    text = """Lebanon"""
+    fig.add_annotation(
+        x=2.37, y=3.1,
+        xref="x", yref="y",  # Coordinate reference system
+        text=text,  # Text content
+        arrowcolor="#0e1117",
+    )
+
+    text = """Afghanistan"""
+    fig.add_annotation(
+        x=1.834, y=1.1,
+        xref="x", yref="y",  # Coordinate reference system
+        text=text,  # Text content
+        arrowcolor="#0e1117",
+    )
+
+    st.plotly_chart(fig, use_container_width=True, theme=None)
 
     small_container = st.container()
     _, small_layout, _ = small_container.columns(SMALL_CONTAINER_COLUMNS)
@@ -200,10 +238,28 @@ with wide_layout:
         df_concat = df_concat.sort_values(by="Happiness Score")
 
         # bar chart horizontal
-        fig = px.bar(df_concat, x="Happiness Score", y=df_concat.index, orientation='h', height=600, color='Happiness Score', color_continuous_scale='viridis')
-        fig.update_layout(xaxis_title='Happiness Score', yaxis_title='Country name')
-        fig.update_layout(autosize=True)
-        st.plotly_chart(fig, use_container_width=True)
+        top_countries_plot = px.bar(df_concat, x="Happiness Score", y=df_concat.index, orientation='h', height=600,
+                     color='Happiness Score', color_continuous_scale='viridis')
+        top_countries_plot.update_layout(xaxis_title='Happiness Score', yaxis_title='Country name')
+        top_countries_plot.update_layout(autosize=True)
+
+        top_countries_plot.add_annotation(  # add a text callout with arrow
+            text="Neighbours!", x=7.5, y=3, showarrow=False
+        )
+
+        top_countries_plot.add_shape(
+            type="path",
+            path="M 2.5, 1 Q 8,2 7.6,6",
+            line=dict(
+                color="#0e1117",
+                width=2,
+            ),
+            fillcolor="rgba(0, 0, 0, 0)",
+            opacity=1
+        )
+
+
+        st.plotly_chart(top_countries_plot, use_container_width=True, theme=None)
 
         """
         Finland is leading as the happiest country with a score of 7.804, followed closely by Denmark, Iceland, Israel, 
@@ -267,10 +323,9 @@ with wide_layout:
             x=full_data[x_var],
             y=y_fit,
             mode='lines',
-            line=dict(color='white', width=2),
+            line=dict(color='#0e1117', width=2),
             name='Trendlinie'
         )
-        regression_line.showlegend = False
         scatter_plot.add_trace(regression_line)
 
         current_row = floor(i / num_cols) + 1
@@ -279,18 +334,19 @@ with wide_layout:
         # Loop through traces, add to subplot, and update legend visibility
         for trace in scatter_plot.data:
             trace.showlegend = (i == 0)  # Show legend only for the first subplot
+            if trace.name == 'Trendlinie':
+                trace.showlegend = False
             fig.add_trace(trace, row=current_row, col=current_col)
 
         # Update axes titles
         fig.update_xaxes(title_text=f"{x_var} ({correlation})", row=current_row, col=current_col)
         fig.update_yaxes(title_text='Happiness Score', row=current_row, col=current_col)
-        fig.update_layout(height=1000)
 
     # Update the layout if needed, e.g., autosize, or adjusting margins
     fig.update_layout(height=1200, autosize=True)
 
     # Display the figure in the Streamlit app
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, use_container_width=True, theme=None)
 
     small_container = st.container()
     _, small_layout, _ = small_container.columns(SMALL_CONTAINER_COLUMNS)
