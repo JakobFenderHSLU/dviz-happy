@@ -279,23 +279,22 @@ with wide_layout:
         """
 
         # Define the details for subplots
-        all_metrics = ['Social support',
-                       'Logged GDP per capita',
-                       'Healthy life expectancy',
-                       'Freedom to make life choices',
-                       'Generosity',
-                       'Urban population percentage',
-                       'Perceptions of corruption',
-                       'Unemployment rate',
-                       'Population']
+        all_metrics = full_data.select_dtypes(include='number').columns.tolist()
+        all_metrics.remove('Happiness Score')
 
         with st.expander("Change Parameters"):
             default_metrics = ['Social support',
                                'Logged GDP per capita',
                                'Healthy life expectancy',
+                               'Tertiary education enrollment',
+                               'Infant mortality',
+                               'Birth Rate',
+                               'Physicians per thousand',
                                'Freedom to make life choices',
                                'Urban population percentage',
-                               'Perceptions of corruption']
+                               'Maternal mortality ratio',
+                               'Co2-Emissions per capita',
+                               'Minimum wage']
             selected_metrics = st.multiselect('correlation_scatter', all_metrics, default_metrics)
 
     if not selected_metrics:
@@ -305,23 +304,24 @@ with wide_layout:
     num_rows = ceil(len(selected_metrics) / num_cols)
 
     # Create a subplot figure with titles
-    indicators_plot = sp.make_subplots(rows=num_rows, cols=num_cols, subplot_titles=selected_metrics)
+    indicators_plot = sp.make_subplots(rows=num_rows, cols=num_cols, subplot_titles=selected_metrics,
+                                       horizontal_spacing=0.05, vertical_spacing=0.06)
 
     # Add each scatter plot to the respective column in the subplot
-    for i, x_var in enumerate(selected_metrics):
-        correlation = round(np.corrcoef(full_data['Happiness Score'], full_data[x_var])[0, 1], 2)
+    for i, selected_metric in enumerate(selected_metrics):
+        correlation = round(np.corrcoef(full_data['Happiness Score'], full_data[selected_metric])[0, 1], 2)
 
-        scatter_plot = px.scatter(full_data, x=x_var, y='Happiness Score', color='Continent',
-                                  hover_name='Country name', hover_data=['Happiness Score', x_var])
+        scatter_plot = px.scatter(full_data, x=selected_metric, y='Happiness Score', color='Continent',
+                                  hover_name='Country name', hover_data=['Happiness Score', selected_metric])
 
         # Calculate the regression line
-        coefficients = np.polyfit(full_data[x_var], full_data['Happiness Score'], 1)
+        coefficients = np.polyfit(full_data[selected_metric], full_data['Happiness Score'], 1)
         m = coefficients[0]
         b = coefficients[1]
-        y_fit = m * full_data[x_var] + b
+        y_fit = m * full_data[selected_metric] + b
 
         regression_line = go.Scatter(
-            x=full_data[x_var],
+            x=full_data[selected_metric],
             y=y_fit,
             mode='lines',
             line=dict(color='#0e1117', width=2),
@@ -340,11 +340,12 @@ with wide_layout:
             indicators_plot.add_trace(trace, row=current_row, col=current_col)
 
         # Update axes titles
-        indicators_plot.update_xaxes(title_text=f"{x_var} ({correlation})", row=current_row, col=current_col)
+        indicators_plot.update_xaxes(title_text=f"{selected_metric} ({correlation})", row=current_row, col=current_col)
         indicators_plot.update_yaxes(title_text='Happiness Score', row=current_row, col=current_col)
 
     # Update the layout if needed, e.g., autosize, or adjusting margins
-    indicators_plot.update_layout(height=1200, autosize=True)
+    total_cols = len(selected_metrics) // 3 + 1
+    indicators_plot.update_layout(height=350 * total_cols, autosize=True)
 
     # Display the figure in the Streamlit app
     st.plotly_chart(indicators_plot, use_container_width=True, theme=None)

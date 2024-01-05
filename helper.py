@@ -75,31 +75,72 @@ merged_data.loc[merged_data['Country name'] == 'Côte D\'Ivoire', 'Country name'
 merged_data.loc[merged_data['Country name'] == 'Palestine, State of', 'Country name'] = 'Palestinian National Authority'
 merged_data.loc[merged_data['Country name'] == 'Gambia', 'Country name'] = 'The Gambia'
 
-# Change Unenployment rate to a float
-world_data['Unemployment rate'] = world_data['Unemployment rate'].str.replace('%', '').astype(float)
-
 # Merge the data for your own new dataset
 full_data = merged_data.merge(
-    world_data[['Country name', 'Unemployment rate', 'Urban_population', 'Population', 'Official language']],
+    world_data,
     on='Country name')
 
-# Now let's add our own math an calculate the percentage living in an urban area
-full_data['Urban_population'] = full_data['Urban_population'].str.replace(',', '').astype(float)
-full_data['Population'] = full_data['Population'].str.replace(',', '').astype(float)
-full_data['Urban population percentage'] = (full_data['Urban_population'] / full_data['Population']) * 100
+# rename columns
 full_data['Continent'] = full_data['region']
 full_data['Region'] = full_data['sub-region']
 full_data['Happiness Score'] = full_data['Ladder score']
-full_data.drop(['region', 'sub-region', 'Ladder score'], axis=1, inplace=True)
+full_data['Density'] = full_data['Density\n(P/Km2)']
+full_data['Land Area'] = full_data['Land Area(Km2)']
+full_data['Forested Area'] = full_data['Forested Area (%)']
+full_data['CPI Change'] = full_data['CPI Change (%)']
+full_data['Tax revenue'] = full_data['Tax revenue (%)']
+full_data['Urban population'] = full_data['Urban_population']
+full_data['Agricultural Land'] = full_data['Agricultural Land( %)']
+full_data['Primary education enrollment'] = full_data['Gross primary education enrollment (%)']
+full_data['Tertiary education enrollment'] = full_data['Gross tertiary education enrollment (%)']
+full_data['Labor force participation'] = full_data['Population: Labor force participation (%)']
 
-# Normalize the data
-full_data["Normalized Logged GDP per capita"] = full_data["Logged GDP per capita"] / full_data["Logged GDP per capita"].max()
-full_data["Normalized Social support"] = full_data["Social support"] / full_data["Social support"].max()
-full_data["Normalized Healthy life expectancy"] = full_data["Healthy life expectancy"] / full_data["Healthy life expectancy"].max()
-full_data["Normalized Freedom to make life choices"] = full_data["Freedom to make life choices"] / full_data["Freedom to make life choices"].max()
-full_data["Normalized Happiness Score"] = full_data["Happiness Score"] / full_data["Happiness Score"].max()
+# Remove commas from all string columns
+full_data = full_data.apply(lambda x: x.str.replace(',', '') if x.dtype == 'object' else x)
+full_data = full_data.apply(lambda x: x.str.replace('$', '') if x.dtype == 'object' else x)
+full_data = full_data.apply(lambda x: x.str.replace('%', '') if x.dtype == 'object' else x)
+full_data = full_data.apply(lambda x: x.str.strip() if x.dtype == 'object' else x)
 
+full_data.drop([
+    'region',
+    'sub-region',
+    'Ladder score',
+    'Density\n(P/Km2)',
+    'Land Area(Km2)',
+    'Forested Area (%)',
+    'CPI Change (%)',
+    'Tax revenue (%)',
+    'Urban_population',
+    'Agricultural Land( %)',
+    'Gross tertiary education enrollment (%)',
+    'Gross primary education enrollment (%)',
+    'Population: Labor force participation (%)',
+], axis=1, inplace=True)
+
+# drop useless columns
+full_data.drop(
+    ['country code', 'Standard error of ladder score', 'upperwhisker', 'lowerwhisker', 'Ladder score in Dystopia',
+     'Explained by: Log GDP per capita', 'Explained by: Social support', 'Explained by: Healthy life expectancy',
+     'Explained by: Freedom to make life choices', 'Explained by: Generosity',
+     'Explained by: Perceptions of corruption', 'Dystopia + residual', 'Abbreviation', 'Official language',
+     'Largest city', 'Capital/Major City', 'Currency-Code', 'Calling Code', 'Latitude', 'Longitude', 'Fertility Rate'],
+    axis=1, inplace=True)
+
+number_cols = ['Logged GDP per capita', 'Social support', 'Healthy life expectancy', 'Freedom to make life choices',
+               'Generosity', 'Perceptions of corruption', 'Armed Forces size', 'Birth Rate', 'Co2-Emissions', 'CPI',
+               'Gasoline Price', 'GDP', 'Infant mortality', 'Life expectancy', 'Maternal mortality ratio',
+               'Minimum wage', 'Out of pocket health expenditure', 'Physicians per thousand', 'Population',
+               'Total tax rate', 'Unemployment rate', 'Happiness Score', 'Density', 'Land Area', 'Forested Area',
+               'CPI Change', 'Tax revenue', 'Agricultural Land', 'Primary education enrollment',
+               'Tertiary education enrollment', 'Labor force participation', 'Urban population']
+
+full_data[number_cols] = full_data[number_cols].apply(pd.to_numeric, errors='coerce')
+
+# Now let's add our own math an calculate the percentage living in an urban area
+full_data['Urban population percentage'] = (full_data['Urban population'] / full_data['Population']) * 100
+full_data['Co2-Emissions per capita'] = full_data['Co2-Emissions'] / full_data['Population']
+full_data['Armed Forces percentage of Population'] = full_data['Armed Forces size'] / full_data['Population'] * 100
 
 # Replace NaN values with the respective column mean
-numeric_means = full_data.select_dtypes(include=[np.number]).mean()
+numeric_means = full_data.select_dtypes(include=[np.number, None]).mean()
 full_data.update(full_data.select_dtypes(include=[np.number]).fillna(numeric_means))
