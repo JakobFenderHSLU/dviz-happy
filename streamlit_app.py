@@ -4,12 +4,12 @@ import numpy as np
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
+import plotly.io as pio
 import plotly.subplots as sp
 import streamlit as st
 
 from helper import continent_color_map, full_data, region_color_map
 
-import plotly.io as pio
 pio.templates.default = 'simple_white'
 
 st.set_page_config(layout='wide', page_title='Happiness & Economics', page_icon=':smiley:')
@@ -93,20 +93,20 @@ with wide_layout:
             map_displayed_data = full_data[(full_data['Happiness Score'] > min_score)
                                            & (full_data['Continent'].isin(map_selected_regions))]
 
-    happiness_map = px.choropleth(map_displayed_data,
-                                  locations="Country name",
-                                  locationmode='country names',
-                                  color="Happiness Score",
-                                  hover_name="Country name",
-                                  hover_data=['Happiness Score'],
-                                  color_continuous_scale='viridis',
-                                  height=800)
+    happiness_map_plot = px.choropleth(map_displayed_data,
+                                       locations="Country name",
+                                       locationmode='country names',
+                                       color="Happiness Score",
+                                       hover_name="Country name",
+                                       hover_data=['Happiness Score'],
+                                       color_continuous_scale='viridis',
+                                       height=800)
 
-    happiness_map.update_geos(showocean=True, oceancolor="#fffec6")
-    happiness_map.update_layout(dragmode=False)
-    happiness_map.update_traces(marker_line_width=0)
+    happiness_map_plot.update_geos(showocean=True, oceancolor="#fffec6")
+    happiness_map_plot.update_layout(dragmode=False)
+    happiness_map_plot.update_traces(marker_line_width=0)
 
-    st.plotly_chart(happiness_map, use_container_width=True, theme=None)
+    st.plotly_chart(happiness_map_plot, use_container_width=True, theme=None)
 
     small_container = st.container()
     _, small_layout, _ = small_container.columns(SMALL_CONTAINER_COLUMNS)
@@ -125,13 +125,14 @@ with wide_layout:
         continent_order = {"Continent": full_data.groupby("Continent")["Happiness Score"].median()
         .sort_values(ascending=False).index.tolist()}
 
-        fig = px.box(full_data, y='Continent', x='Happiness Score', color='Continent', height=600, orientation='h',
-                     color_discrete_map=continent_color_map, category_orders=continent_order,
-                     hover_data=['Country name'])
+        continent_plot = px.box(full_data, y='Continent', x='Happiness Score', color='Continent', height=600,
+                                orientation='h',
+                                color_discrete_map=continent_color_map, category_orders=continent_order,
+                                hover_data=['Country name'])
 
-        fig.update_layout(xaxis_title='Happiness Score', yaxis_title='Continent')
-        fig.update_layout(autosize=True)
-        st.plotly_chart(fig, use_container_width=True, theme=None)
+        continent_plot.update_layout(xaxis_title='Happiness Score', yaxis_title='Continent')
+        continent_plot.update_layout(autosize=True)
+        st.plotly_chart(continent_plot, use_container_width=True, theme=None)
 
         """
         Oceanica is by far the happiest continent. But this is not a fair comparison, because Oceanica only has 2
@@ -172,48 +173,46 @@ with wide_layout:
     region_order = {"Region": box_displayed_data.groupby("Region")["Happiness Score"].median()
     .sort_values(ascending=False).index.tolist()}
 
-    fig = px.box(box_displayed_data, y='Region', x='Happiness Score', color='Region', height=1200,
-                 orientation='h', color_discrete_map=region_color_map,
-                 category_orders=region_order, hover_data=['Country name'])
+    region_plot = px.box(box_displayed_data, y='Region', x='Happiness Score', color='Region', height=1200,
+                         orientation='h', color_discrete_map=region_color_map,
+                         category_orders=region_order, hover_data=['Country name'])
 
-    fig.update_layout(yaxis_title='Sub Region', xaxis_title='Happiness Score', autosize=True)
+    region_plot.update_layout(yaxis_title='Sub Region', xaxis_title='Happiness Score', autosize=True)
+    if len(box_selected_sub_regions) == len(all_eligible_sub_regions) and len(box_selected_regions) == len(all_regions):
+        text = """<span style='font-size:28px; color:#0e1117'>The West</span>"""
+        region_plot.add_annotation(
+            x=5.5, y=12.7,  # Text annotation position
+            xref="x", yref="y",  # Coordinate reference system
+            text=text,  # Text content
+            showarrow=False,
+        )
 
-    text = """<span style='font-size:28px; color:#0e1117'>The West</span>"""
-    fig.add_annotation(
-        x=5.5, y=12.7,  # Text annotation position
-        xref="x", yref="y",  # Coordinate reference system
-        text=text,  # Text content
-        showarrow=False,
-    )
+        region_plot.add_shape(
+            type="rect",
+            x0=4.9, y0=13.5, x1=8, y1=7.5,  # Define the coordinates of the rectangle's corners
+            line=dict(
+                color="#0e1117",
+                width=5,
+            ),
+            opacity=1,
+            fillcolor="rgba(0, 0, 0, 0)",
+        )
 
-    fig.add_shape(
-        type="rect",
-        x0=4.9, y0=13.5, x1=8, y1=7.5,  # Define the coordinates of the rectangle's corners
-        line=dict(
-            color="#0e1117",
-            width=5,
-        ),
-        opacity=1,
-        fillcolor="rgba(0, 0, 0, 0)",
-    )
+        region_plot.add_annotation(
+            x=2.37, y=3.1,
+            xref="x", yref="y",  # Coordinate reference system
+            text="Lebanon",  # Text content
+            arrowcolor="#0e1117",
+        )
 
-    text = """Lebanon"""
-    fig.add_annotation(
-        x=2.37, y=3.1,
-        xref="x", yref="y",  # Coordinate reference system
-        text=text,  # Text content
-        arrowcolor="#0e1117",
-    )
+        region_plot.add_annotation(
+            x=1.834, y=1.1,
+            xref="x", yref="y",  # Coordinate reference system
+            text="Afghanistan",  # Text content
+            arrowcolor="#0e1117",
+        )
 
-    text = """Afghanistan"""
-    fig.add_annotation(
-        x=1.834, y=1.1,
-        xref="x", yref="y",  # Coordinate reference system
-        text=text,  # Text content
-        arrowcolor="#0e1117",
-    )
-
-    st.plotly_chart(fig, use_container_width=True, theme=None)
+    st.plotly_chart(region_plot, use_container_width=True, theme=None)
 
     small_container = st.container()
     _, small_layout, _ = small_container.columns(SMALL_CONTAINER_COLUMNS)
@@ -239,7 +238,7 @@ with wide_layout:
 
         # bar chart horizontal
         top_countries_plot = px.bar(df_concat, x="Happiness Score", y=df_concat.index, orientation='h', height=600,
-                     color='Happiness Score', color_continuous_scale='viridis')
+                                    color='Happiness Score', color_continuous_scale='viridis')
         top_countries_plot.update_layout(xaxis_title='Happiness Score', yaxis_title='Country name')
         top_countries_plot.update_layout(autosize=True)
 
@@ -257,7 +256,6 @@ with wide_layout:
             fillcolor="rgba(0, 0, 0, 0)",
             opacity=1
         )
-
 
         st.plotly_chart(top_countries_plot, use_container_width=True, theme=None)
 
@@ -300,11 +298,14 @@ with wide_layout:
                                'Perceptions of corruption']
             selected_metrics = st.multiselect('correlation_scatter', all_metrics, default_metrics)
 
+    if not selected_metrics:
+        selected_metrics = default_metrics
+
     num_cols = 3
     num_rows = ceil(len(selected_metrics) / num_cols)
 
     # Create a subplot figure with titles
-    fig = sp.make_subplots(rows=num_rows, cols=num_cols, subplot_titles=selected_metrics)
+    indicators_plot = sp.make_subplots(rows=num_rows, cols=num_cols, subplot_titles=selected_metrics)
 
     # Add each scatter plot to the respective column in the subplot
     for i, x_var in enumerate(selected_metrics):
@@ -336,17 +337,17 @@ with wide_layout:
             trace.showlegend = (i == 0)  # Show legend only for the first subplot
             if trace.name == 'Trendlinie':
                 trace.showlegend = False
-            fig.add_trace(trace, row=current_row, col=current_col)
+            indicators_plot.add_trace(trace, row=current_row, col=current_col)
 
         # Update axes titles
-        fig.update_xaxes(title_text=f"{x_var} ({correlation})", row=current_row, col=current_col)
-        fig.update_yaxes(title_text='Happiness Score', row=current_row, col=current_col)
+        indicators_plot.update_xaxes(title_text=f"{x_var} ({correlation})", row=current_row, col=current_col)
+        indicators_plot.update_yaxes(title_text='Happiness Score', row=current_row, col=current_col)
 
     # Update the layout if needed, e.g., autosize, or adjusting margins
-    fig.update_layout(height=1200, autosize=True)
+    indicators_plot.update_layout(height=1200, autosize=True)
 
     # Display the figure in the Streamlit app
-    st.plotly_chart(fig, use_container_width=True, theme=None)
+    st.plotly_chart(indicators_plot, use_container_width=True, theme=None)
 
     small_container = st.container()
     _, small_layout, _ = small_container.columns(SMALL_CONTAINER_COLUMNS)
