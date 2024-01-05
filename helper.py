@@ -95,12 +95,6 @@ full_data['Primary education enrollment'] = full_data['Gross primary education e
 full_data['Tertiary education enrollment'] = full_data['Gross tertiary education enrollment (%)']
 full_data['Labor force participation'] = full_data['Population: Labor force participation (%)']
 
-# Remove commas from all string columns
-full_data = full_data.apply(lambda x: x.str.replace(',', '') if x.dtype == 'object' else x)
-full_data = full_data.apply(lambda x: x.str.replace('$', '') if x.dtype == 'object' else x)
-full_data = full_data.apply(lambda x: x.str.replace('%', '') if x.dtype == 'object' else x)
-full_data = full_data.apply(lambda x: x.str.strip() if x.dtype == 'object' else x)
-
 full_data.drop([
     'region',
     'sub-region',
@@ -116,6 +110,13 @@ full_data.drop([
     'Gross primary education enrollment (%)',
     'Population: Labor force participation (%)',
 ], axis=1, inplace=True)
+
+# Remove commas from all string columns
+full_data = full_data.apply(lambda x: x.str.replace(',', '') if x.dtype == 'object' else x)
+full_data = full_data.apply(lambda x: x.str.replace('$', '') if x.dtype == 'object' else x)
+full_data = full_data.apply(lambda x: x.str.replace('%', '') if x.dtype == 'object' else x)
+full_data = full_data.apply(lambda x: x.str.strip() if x.dtype == 'object' else x)
+
 
 # drop useless columns
 full_data.drop(
