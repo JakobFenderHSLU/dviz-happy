@@ -95,28 +95,10 @@ full_data['Primary education enrollment'] = full_data['Gross primary education e
 full_data['Tertiary education enrollment'] = full_data['Gross tertiary education enrollment (%)']
 full_data['Labor force participation'] = full_data['Population: Labor force participation (%)']
 
-full_data.drop([
-    'region',
-    'sub-region',
-    'Ladder score',
-    'Density\n(P/Km2)',
-    'Land Area(Km2)',
-    'Forested Area (%)',
-    'CPI Change (%)',
-    'Tax revenue (%)',
-    'Urban_population',
-    'Agricultural Land( %)',
-    'Gross tertiary education enrollment (%)',
-    'Gross primary education enrollment (%)',
-    'Population: Labor force participation (%)',
-], axis=1, inplace=True)
-
-# Remove commas from all string columns
-full_data = full_data.apply(lambda x: x.str.replace(',', '') if x.dtype == 'object' else x)
-full_data = full_data.apply(lambda x: x.str.replace('$', '') if x.dtype == 'object' else x)
-full_data = full_data.apply(lambda x: x.str.replace('%', '') if x.dtype == 'object' else x)
-full_data = full_data.apply(lambda x: x.str.strip() if x.dtype == 'object' else x)
-
+full_data.drop(['region', 'sub-region', 'Ladder score', 'Density\n(P/Km2)', 'Land Area(Km2)', 'Forested Area (%)',
+                'CPI Change (%)', 'Tax revenue (%)', 'Urban_population', 'Agricultural Land( %)',
+                'Gross tertiary education enrollment (%)', 'Gross primary education enrollment (%)',
+                'Population: Labor force participation (%)', ], axis=1, inplace=True)
 
 # drop useless columns
 full_data.drop(
@@ -126,6 +108,12 @@ full_data.drop(
      'Explained by: Perceptions of corruption', 'Dystopia + residual', 'Abbreviation', 'Official language',
      'Largest city', 'Capital/Major City', 'Currency-Code', 'Calling Code', 'Latitude', 'Longitude', 'Fertility Rate'],
     axis=1, inplace=True)
+
+# Remove commas from all string columns
+full_data = full_data.apply(lambda x: x.str.replace(',', '') if x.dtype == 'object' else x)
+full_data = full_data.apply(lambda x: x.str.replace('$', '') if x.dtype == 'object' else x)
+full_data = full_data.apply(lambda x: x.str.replace('%', '') if x.dtype == 'object' else x)
+full_data = full_data.apply(lambda x: x.str.strip() if x.dtype == 'object' else x)
 
 number_cols = ['Logged GDP per capita', 'Social support', 'Healthy life expectancy', 'Freedom to make life choices',
                'Generosity', 'Perceptions of corruption', 'Armed Forces size', 'Birth Rate', 'Co2-Emissions', 'CPI',
