@@ -63,19 +63,25 @@ with wide_layout:
         st.markdown(SMALL_SPACER_HTML, unsafe_allow_html=True)
         """
         ## Introduction
-        
-        In our quest to understand what influences happiness around the world, we embark on a data-driven story 
-        that navigates through various indicators of well-being. With the aid of global data, we plot happiness 
-        scores against a myriad of metrics that will give us a better understanding of what makes us happy. We will also
+        In our quest to understand what influences happiness around the world, we embark on a data-driven story that 
+        navigates through various indicators of well-being. With the aid of global data, we plot happiness scores 
+        against a myriad of metrics that will give us a better understanding of what makes us happy. We will also 
         explore the geographic distribution of happiness scores and how they vary across continents. 
         """
         st.markdown(SMALL_SPACER_HTML, unsafe_allow_html=True)
         """
         ### Happiness, on a Map?
-        The World Happiness Report is a landmark survey of the state of global happiness. The survey is conducted by the
-        Gallup World Poll.  It surveys participants from 137 countries and ranks determines a happiness score for each 
-        country. The happiness score in a number between 0 and 10, with 10 being the happiest. Sadly not every country
-        is included in the survey. These countries have a white color on the map. 
+        The World Happiness Report is a landmark survey of the state of global happiness. The survey is conducted by 
+        the Gallup World Poll. It surveys participants from 137 countries and ranks determines a happiness score for 
+        each country. The happiness score in a number between 0 and 10, with 10 being the happiest. Sadly, not every 
+        country is included in the survey. These countries have a white color on the map.
+        
+        
+        
+        Something that you can see in the map is that the countries with the highest happiness score are in Europe, 
+        North America, and Oceania. The countries with the lowest happiness score are in Africa, the Middle East, 
+        and South Asia.
+ 
         
         _Hint: You can change the regions that are displayed on the plot_
         """
@@ -135,17 +141,17 @@ with wide_layout:
         st.plotly_chart(continent_plot, use_container_width=True, theme=None)
 
         """
-        Oceanica is by far the happiest continent. But this is not a fair comparison, because Oceanica only has 2
-        countries with data. This scews the data in their favor. The next best continent is Europe. With the highest
+        Oceanica is by far the happiest continent. But this is not a fair comparison, because Oceanica only has 2 
+        countries with data. This skews the data in their favor. The next best continent is Europe. With the highest 
         upper fence and the highest median score. The Americas are not that far off. With their upper and lower fences 
-        being very close to each other. Asia has the largest spread of happiness scores. Africa is the unhappiest
+        being very close to each other. Asia has the largest spread of happiness scores. Africa is the unhappiest 
         continent by far. Their median score is lower than the lower fence of Europe.
         """
         st.markdown(SMALL_SPACER_HTML, unsafe_allow_html=True)
         """        
         ### Where _exactly_ are the happiest people?
-        The following boxplot shows the happiness scores of the regions of a continent. The boxplots have been sorted
-        by their median score and colored by their continent. 
+        The following boxplot shows the happiness scores of the regions of a continent. The boxplots have been sorted 
+        by their median score and colored by their continent.
         
         _Hint: You can change the regions that are displayed on the plot_
         """
@@ -219,11 +225,12 @@ with wide_layout:
 
     with small_layout:
         """
-        Something that is very easy to see is that the happiest regions are from Europe and North America. No big
-        surprise there. These regions perfectly match what people call "The West". The most interesting region is by far
-        West Asia. The happiness scores in this region varies from the second lowest to one of the highest. And regions
-        with the lowest happiness score are Sub-Saharan Africa and South Asia. Sub-Saharan Africa have been plagued by
-        political instability and poverty for decades. South Asia is home to some of the poorest countries in the world.
+        Something that is very easy to see is that the happiest regions are from Europe and North America. No big 
+        surprise there. These regions perfectly match what people call "The West". The most interesting region is by 
+        far West Asia. The happiness scores in this region varies from the second lowest to one of the highest. And 
+        regions with the lowest happiness score are Sub-Saharan Africa and South Asia. Sub-Saharan Africa have been 
+        plagued by political instability and poverty for decades. South Asia is home to some of the poorest countries 
+        in the world.
         """
         st.markdown(SMALL_SPACER_HTML, unsafe_allow_html=True)
         """
@@ -264,17 +271,16 @@ with wide_layout:
         and the Netherlands in the top five. All of these countries are part of the developed world. Conversely, at the 
         other end of the spectrum, Afghanistan occupies the lowest position, ranking as the unhappiest country with a 
         significantly lower score of 1.859. Lebanon, Sierra Leone, Zimbabwe, and Botswana also find themselves among 
-        the unhappiest nations, with scores ranging from 2.392 to 3.435. A very interesting observation is that Israel
-        and Lebanon are neighbors, but have a very different happiness score. 
-        
+        the unhappiest nations, with scores ranging from 2.392 to 3.435. A very interesting observation is that Israel 
+        and Lebanon are neighbors but have a very different happiness score.
         """
         st.markdown(SMALL_SPACER_HTML, unsafe_allow_html=True)
         """
         ### What Factors Influence Happiness the most?
         
-        Now that we have a better understanding of the geographic distribution of happiness scores, let's take a look
-        at some of the metrics that may have an influence on the happiness score. Some metrics are social, some are
-        economic, and some are a mix of both. The number in the brackets is the correlation between the metric and the
+        Now that we have a better understanding of the geographic distribution of happiness scores, let's take a look 
+        at some of the metrics that may have an influence on the happiness score. Some metrics are social, some are 
+        economic, and some are a mix of both. The number in the brackets is the correlation between the metric and the 
         happiness score.
         """
 
@@ -356,24 +362,35 @@ with wide_layout:
     with small_layout:
         st.markdown(SMALL_SPACER_HTML, unsafe_allow_html=True)
         """
-        Here you can see, that the strongest correlation is between the happiness score and Social Support, which makes
-        sense. People are more happy, if a good social support network that allows them to live a fulfilling
-        life, even if they get injured or go into retirement. The second strongest correlation is between the happiness
-        and the GDP per capita. This is also not surprising. People are more happy, if they have more money. Another 
-        correlation that feels very intuitive is the correlation between the happiness score and the healthy life
-        expectancy. People are more happy, if they are healthy. The correlation between the happiness score and the
-        freedom to make life choices is also very intuitive, although it is not as strong as expected. 
-        Urban population percentage, and perceptions of corruption are also correlated with the happiness score, but
-        not as strong as the other metrics.
+        Here you can see that the strongest correlation is between the happiness score and Social Support, which makes 
+        sense. People are happier, if a good social with a support network that allows them to live a fulfilling life, 
+        even if they get injured or go into retirement. The second strongest correlation is between the happiness and 
+        the GDP per capita. This is also not surprising. People are happier if they have more money.
+        
+        
+        
+        Another correlation that feels very intuitive is the correlation between the happiness score and the healthy 
+        life expectancy. People are happier if they are healthy. The correlation between the happiness score and the 
+        freedom to make life choices is also very intuitive, although it is not as strong as expected. Urban population 
+        percentage, and perceptions of corruption are also correlated with the happiness score, but not as strong as 
+        the other metrics. 
         """
         st.markdown(BIG_SPACER_HTML, unsafe_allow_html=True)
         """
         ## Conclusion
-        Through the course of this data story, we have explored the geographic distribution of happiness scores, and
-        how they vary across continents and regions. We have also explored the correlation between happiness scores and
-        various metrics that may influence happiness. We have found that the happiness score is strongly correlated
-        with social support, GDP per capita, and healthy life expectancy. We have also found that the happiest countries
-        are in Europe and North America, while the unhappiest countries are in Africa and South Asia.
+        In this data-driven exploration, we have journeyed through the complex landscape of global happiness, examining 
+        its geographical distribution and underlying influencers. Our analysis reveals a distinct concentration of 
+        higher happiness scores in Europe and North America, contrasted starkly with lower scores in Africa and South 
+        Asia. Key factors like social support, GDP per capita, and healthy life expectancy emerge as significant 
+        determinants of happiness.
+        
+        
+        
+        
+        This study not only highlights the diverse spectrum of happiness across the globe but also underscores the 
+        multifaceted nature of well-being, influenced by both social and economic dimensions. Through these insights, 
+        we gain a deeper understanding of what contributes to the happiness of societies worldwide.
+
         """
     st.markdown(BIG_SPACER_HTML, unsafe_allow_html=True)
 
