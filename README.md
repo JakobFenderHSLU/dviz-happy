@@ -4,7 +4,7 @@ This project visualizes the **World Happiness Score** using **Streamlit**. It pr
 
 ## 🚀 Streamlit Demo  
 Check out the interactive demo:  
-🔗 **[Auto-Pixler Streamlit App](https://auto-pixler.streamlit.app)**  
+🔗 **[Streamlit App](https://dviz-happy.streamlit.app)**  
 
 ## 🏗️ Installation  
 1. Clone the repository:  
